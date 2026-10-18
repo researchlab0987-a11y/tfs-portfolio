@@ -167,9 +167,19 @@ html.fx-hide [data-cursor-preview], html.fx-hide [data-cursor-preview] * { curso
 .fx-trail, .fx-arrow, .fx-dot, .fx-ring { position: fixed; left: 0; top: 0; pointer-events: none; opacity: 0; transition: opacity .2s ease; }
 .fx-trail { z-index: 9998; width: 100vw; height: 100vh; }
 /* Which parts each style shows. */
-html.fx-on:is(.fx-mode-comet, .fx-mode-sparkle, .fx-mode-glow) .fx-trail,
-html.fx-on:is(.fx-mode-comet, .fx-mode-arrow, .fx-mode-sparkle) .fx-arrow,
-html.fx-on.fx-mode-ring :is(.fx-dot, .fx-ring) { opacity: 1; transition-duration: 0s; }
+html.fx-on:is(.fx-mode-comet, .fx-mode-sparkle, .fx-mode-glow, .fx-mode-dot, .fx-mode-crosshair, .fx-mode-ripple, .fx-mode-trail, .fx-mode-rainbow, .fx-mode-pixel, .fx-mode-bubbles, .fx-mode-laser) .fx-trail,
+html.fx-on:is(.fx-mode-comet, .fx-mode-arrow, .fx-mode-sparkle, .fx-mode-trail, .fx-mode-rainbow, .fx-mode-pixel) .fx-arrow,
+html.fx-on.fx-mode-ring :is(.fx-dot, .fx-ring),
+html.fx-on.fx-mode-invert .fx-invert { opacity: 1; transition-duration: 0s; }
+/* Invert: a white circle in "difference" mode flips the colours beneath it. */
+.fx-invert {
+  position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; opacity: 0;
+  width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+  background: #fff; mix-blend-mode: difference; will-change: transform;
+  transition: opacity .2s ease, width .25s cubic-bezier(.2,.9,.25,1), height .25s cubic-bezier(.2,.9,.25,1), margin .25s cubic-bezier(.2,.9,.25,1), scale .15s ease;
+}
+.fx-invert.is-hover { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+.fx-invert.is-down { scale: .85; }
 /* Ring: a dot, and a ring that wraps around buttons and links. */
 .fx-dot { z-index: 9999; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--accent); will-change: transform; }
 .fx-dot.is-hidden { scale: 0; }

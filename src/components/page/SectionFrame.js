@@ -44,7 +44,7 @@ function scopedCss(id, css) {
   return `${sel}{${clean}}`;
 }
 
-function backgroundStyle(style) {
+export function backgroundStyle(style) {
   if (style.tone !== 'custom') return {};
   const out = {};
   if (style.bgType === 'gradient' && style.bgColor) {

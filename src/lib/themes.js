@@ -48,6 +48,20 @@ export const PRESETS = [
   { id: 'graphite', name: 'Graphite', note: 'Neutral greys, steel blue', colors: t('#F6F6F5', '#ECECEA', '#DFDFDC', '#FFFFFF', '#D6D6D2', '#1F2328', '#4B5159', '#868B92', '#2F5F84', '#244B69', '#E1EAF2', '#FFFFFF', '#C2763A') },
   { id: 'lab-night', name: 'Lab at night', note: 'Dark slate, teal accent', colors: t('#0F1620', '#152030', '#1D2B3E', '#131D2A', '#263548', '#E6EDF5', '#A9B6C6', '#6E7E92', '#3BB8AA', '#5ACCBF', '#123B3A', '#06201E', '#E8B04A') },
   { id: 'indigo-night', name: 'Indigo night', note: 'Deep indigo, periwinkle', colors: t('#11131F', '#181B2B', '#21253A', '#161927', '#2C3150', '#E8E9F3', '#B0B3CC', '#767A99', '#8EA2FF', '#A9B8FF', '#262D55', '#0D1030', '#F2C46D') },
+  // Light
+  { id: 'ocean', name: 'Ocean', note: 'Sea mist, deep sea blue', colors: t('#F2F7FA', '#E4EFF5', '#D3E4EE', '#FFFFFF', '#C9DCE7', '#0E2433', '#3E5A6C', '#7690A0', '#0E6E9C', '#0A5A80', '#DCEEF7', '#FFFFFF', '#E39B2D') },
+  { id: 'terracotta', name: 'Terracotta', note: 'Warm sand, clay accent', colors: t('#FAF6F0', '#F2EBE0', '#E7DDCE', '#FFFFFF', '#E2D6C4', '#2B2118', '#5E4E3E', '#94826E', '#B5532E', '#964324', '#F6E2D8', '#FFFFFF', '#3A7D6B') },
+  { id: 'lavender', name: 'Lavender', note: 'Soft lilac, violet accent', colors: t('#F8F7FC', '#EEEBF8', '#E2DDF2', '#FFFFFF', '#DCD6EE', '#221C3A', '#504869', '#8A83A3', '#6B4FC8', '#563DA8', '#ECE6FB', '#FFFFFF', '#D9A13A') },
+  { id: 'olive', name: 'Olive', note: 'Linen paper, olive green', colors: t('#F6F6F0', '#ECECE1', '#DFE0D0', '#FFFFFF', '#D8D9C7', '#24261A', '#545845', '#878B75', '#5E6B2A', '#4B5621', '#E8ECD6', '#FFFFFF', '#B8612F') },
+  { id: 'sunrise', name: 'Sunrise', note: 'Cream, amber accent', colors: t('#FFFAF2', '#FBF1E2', '#F4E4CC', '#FFFFFF', '#EFDEC5', '#2A1E10', '#5E4B33', '#96836A', '#9A570A', '#7D4608', '#FCEBD0', '#FFFFFF', '#2F6E8E') },
+  { id: 'mint', name: 'Mint', note: 'Fresh white, emerald', colors: t('#F3FAF7', '#E5F3EE', '#D3EAE2', '#FFFFFF', '#CBE3DA', '#12271F', '#3F5A4F', '#7A9488', '#13805C', '#0F6A4C', '#D8F2E8', '#FFFFFF', '#D27D2C') },
+  { id: 'crimson', name: 'Crimson', note: 'Paper white, scarlet', colors: t('#FBF8F8', '#F3EDED', '#E8DFDF', '#FFFFFF', '#E3D7D7', '#1F1416', '#4E3D40', '#8B787B', '#B4232F', '#911C26', '#F8E1E3', '#FFFFFF', '#2C6E91') },
+  { id: 'ink', name: 'Ink', note: 'Black and white, minimal', colors: t('#FFFFFF', '#F4F4F5', '#E8E8EA', '#FFFFFF', '#E1E1E4', '#111113', '#46464C', '#84848C', '#111113', '#2B2B30', '#EDEDEF', '#FFFFFF', '#C2410C') },
+  // Dark
+  { id: 'midnight', name: 'Midnight', note: 'Navy night, gold accent', colors: t('#0B1220', '#111A2C', '#18243A', '#0F1828', '#23314A', '#E8EDF6', '#A8B4C8', '#6F7D94', '#E2B65B', '#ECC77A', '#3A2F17', '#1A1405', '#7FB3FF') },
+  { id: 'charcoal', name: 'Charcoal', note: 'Graphite dark, orange', colors: t('#141414', '#1C1C1C', '#252525', '#191919', '#2E2E2E', '#EDEDED', '#B3B3B3', '#7A7A7A', '#F28C38', '#F6A35F', '#3B2614', '#1A0F05', '#6CB4E8') },
+  { id: 'forest-night', name: 'Forest night', note: 'Deep green dark, mint', colors: t('#0F1712', '#15201A', '#1C2A22', '#121C16', '#263629', '#E5EEE7', '#A9BAAD', '#708276', '#6FCF97', '#8DDBAC', '#1E3A2A', '#062012', '#E9B949') },
+  { id: 'plum-night', name: 'Plum night', note: 'Aubergine dark, pink', colors: t('#16101C', '#1D1526', '#261C32', '#1A1322', '#33264A', '#EEE6F5', '#B9A9C9', '#7F6F92', '#E879A8', '#EF97BC', '#3E1D30', '#24081A', '#8FD0C8') },
 ];
 
 export const getPreset = (id) => PRESETS.find((p) => p.id === id) || PRESETS[0];

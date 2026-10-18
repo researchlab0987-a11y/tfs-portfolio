@@ -4,14 +4,14 @@ import Modal from '@/components/ui/Modal';
 import { pageHref } from '@/components/ui/ActionButton';
 import { useAdmin } from '@/context/AdminContext';
 import Icon from '@/components/ui/Icon';
-import { ICON_CHOICES, navIconFor, PAGE_TEMPLATES } from '@/lib/sections';
+import { DEFAULT_PAGE_BACKGROUND, DEFAULT_PAGE_HEADER, ICON_CHOICES, navIconFor, PAGE_LOOK_FIELDS, PAGE_TEMPLATES } from '@/lib/sections';
 import { deletePage, savePage, usePagesMap, useSchema } from '@/lib/store';
 import { slugify } from '@/lib/utils';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Label, Segmented, Toggle } from './Fields';
+import { FieldList, Label, Segmented, Toggle } from './Fields';
 import { confirmDanger } from '@/components/ui/ConfirmDialog';
 
 const RESERVED = ['admin', 'login', 'api', '_next', 'home'];
@@ -171,13 +171,18 @@ export function PageSettingsForm({ pageId, onDone }) {
                 <Label>Alignment</Label>
                 <Segmented options={['left', 'center']} value={data.header.align} onChange={(v) => setHeader({ align: v })} />
               </div>
-              <div>
-                <Label>Background</Label>
-                <Segmented options={['inherit', 'soft', 'contrast', 'accent']} value={data.header.tone} onChange={(v) => setHeader({ tone: v })} />
-              </div>
             </div>
           </>
         )}
+      </div>
+
+      <div className="ui-group space-y-4">
+        <p>Colours and background</p>
+        <FieldList
+          fields={data.header.show ? PAGE_LOOK_FIELDS : PAGE_LOOK_FIELDS.slice(PAGE_LOOK_FIELDS.findIndex((f) => f.group === 'Background of the whole tab'))}
+          value={{ ...data, header: { ...DEFAULT_PAGE_HEADER, ...data.header }, background: { ...DEFAULT_PAGE_BACKGROUND, ...(data.background || {}) } }}
+          onChange={(next) => setData(next)}
+        />
       </div>
 
       <div className="ui-group space-y-3">

@@ -10,7 +10,7 @@ import { cx } from '@/lib/utils';
 import { Plus, Settings2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo } from 'react';
-import SectionFrame from './SectionFrame';
+import SectionFrame, { backgroundStyle } from './SectionFrame';
 
 function InsertPoint({ pageId, index, prominent = false }) {
   const { setAddSection } = useAdmin();
@@ -30,14 +30,45 @@ function InsertPoint({ pageId, index, prominent = false }) {
   );
 }
 
-function PageHeader({ page, inDrawer }) {
+const HEADER_PAD = {
+  compact: 'pb-5 pt-5 sm:pb-7 sm:pt-8 md:pb-9 md:pt-12',
+  normal: 'pb-6 pt-6 sm:pb-10 sm:pt-12 md:pb-16 md:pt-20',
+  tall: 'pb-10 pt-12 sm:pb-16 sm:pt-20 md:pb-24 md:pt-32',
+};
+
+/** Inline background for the whole tab. */
+function pageBackground(bg) {
+  if (!bg || bg.type === 'none') return null;
+  const out = {};
+  if (bg.type === 'gradient' && bg.color) out.background = `linear-gradient(${bg.angle ?? 160}deg, ${bg.color}, ${bg.color2 || bg.color})`;
+  else if (bg.type === 'image' && bg.image) {
+    const fade = Number(bg.overlay) || 0;
+    out.backgroundImage = `linear-gradient(color-mix(in srgb, var(--bg-primary) ${Math.round(fade * 100)}%, transparent), color-mix(in srgb, var(--bg-primary) ${Math.round(fade * 100)}%, transparent)), url("${String(bg.image).replace(/"/g, '')}")`;
+    out.backgroundSize = 'cover';
+    out.backgroundPosition = 'center';
+    if (bg.fixed) out.backgroundAttachment = 'fixed';
+  } else if (bg.color) out.background = bg.color;
+  if (bg.textColor) {
+    out['--text-primary'] = bg.textColor;
+    out['--text-secondary'] = `color-mix(in srgb, ${bg.textColor} 82%, transparent)`;
+    out['--text-muted'] = `color-mix(in srgb, ${bg.textColor} 60%, transparent)`;
+    out.color = bg.textColor;
+  }
+  return out;
+}
+
+function PageHeader({ page, inDrawer, hasPageBg }) {
   const h = page.header;
   if (!h.show) return null;
   const title = h.title || page.title;
+  const custom = h.tone === 'custom';
+  const toneClass = custom ? '' : h.tone && h.tone !== 'inherit' ? `tone-${h.tone}` : hasPageBg ? '' : 'bg-bg';
+  const style = custom ? backgroundStyle({ ...h, tone: 'custom' }) : undefined;
   return (
-    <div className={cx('border-b border-line', h.tone && h.tone !== 'inherit' ? `tone-${h.tone}` : 'bg-bg')}>
+    <div className={cx('relative isolate border-b border-line', toneClass)} style={style}>
+      {custom && h.bgType === 'image' && h.bgImage && <div className="absolute inset-0 -z-10 bg-black" style={{ opacity: Number(h.overlay) || 0 }} aria-hidden="true" />}
       {/* Compact on phones: the top bar already names the tab. */}
-      <div className={cx('mx-auto max-w-site', inDrawer ? 'px-5 pb-5 pt-5 md:px-10 md:pb-8 md:pt-10' : 'px-5 md:px-8', inDrawer ? '' : 'pb-6 pt-6 sm:pb-10 sm:pt-12 md:pb-16 md:pt-20', h.align === 'center' && 'text-center')}>
+      <div className={cx('mx-auto max-w-site', inDrawer ? 'px-5 pb-5 pt-5 md:px-10 md:pb-8 md:pt-10' : 'px-5 md:px-8', inDrawer ? '' : HEADER_PAD[h.size] || HEADER_PAD.normal, h.align === 'center' && 'text-center')}>
         <h1 className="font-heading text-[1.75rem] font-medium leading-[1.08] text-ink sm:text-[2.3rem] md:text-[3.4rem]">{title}</h1>
         {h.subtitle && <p className={cx('mt-2 line-clamp-3 max-w-2xl text-[0.98rem] text-ink2 sm:mt-4 sm:line-clamp-none sm:text-[1.08rem]', h.align === 'center' && 'mx-auto')}>{h.subtitle}</p>}
       </div>
@@ -103,7 +134,7 @@ export default function PageView({ slug, inDrawer = false }) {
   const visible = sections.filter((s) => canEdit || !s.hidden);
 
   return (
-    <div className={cx(page.hidden && canEdit && 'opacity-90')}>
+    <div className={cx(page.hidden && canEdit && 'opacity-90')} style={pageBackground(page.background) || undefined}>
       {canTabs && (
         <div className="ui pointer-events-none sticky top-[var(--nav-h)] z-30 flex justify-center">
           <button type="button" onClick={() => setPageSettings(page.id)} className="pointer-events-auto mt-2 inline-flex items-center gap-1.5 rounded-full bg-slate-900/90 px-3 py-1 text-xs font-semibold text-white shadow">
@@ -112,7 +143,7 @@ export default function PageView({ slug, inDrawer = false }) {
           </button>
         </div>
       )}
-      <PageHeader page={page} inDrawer={inDrawer} />
+      <PageHeader page={page} inDrawer={inDrawer} hasPageBg={Boolean(pageBackground(page.background))} />
       {visible.map((section, i) => (
         <div key={section.id} className="relative">
           {canSections && <InsertPoint pageId={page.id} index={i} />}

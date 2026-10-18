@@ -650,7 +650,71 @@ export function navIconFor(page) {
   return NAV_ICON_GUESSES.find(([re]) => re.test(page.id) || re.test(text))?.[1] || 'FileText';
 }
 
-export const DEFAULT_PAGE_HEADER = { show: true, title: '', subtitle: '', align: 'left', tone: 'inherit' };
+export const DEFAULT_PAGE_HEADER = {
+  show: true,
+  title: '',
+  subtitle: '',
+  align: 'left',
+  tone: 'inherit', // inherit | soft | muted | card | contrast | accent | custom
+  size: 'normal', // compact | normal | tall
+  bgType: 'color', // color | gradient | image (tone = custom)
+  bgColor: '',
+  bgColor2: '',
+  bgAngle: 135,
+  bgImage: '',
+  overlay: 0.45,
+  textColor: '',
+};
+
+/** Background behind the whole tab (sections without their own background show it). */
+export const DEFAULT_PAGE_BACKGROUND = { type: 'none', color: '', color2: '', angle: 160, image: '', overlay: 0.3, fixed: false, textColor: '' };
+
+/** Form for a tab's title band and page background (Tab settings). */
+export const PAGE_LOOK_FIELDS = [
+  { group: 'Title band background' },
+  {
+    key: 'header.tone',
+    label: 'Background',
+    type: 'segmented',
+    options: [
+      { value: 'inherit', label: 'Page' },
+      { value: 'soft', label: 'Soft' },
+      { value: 'muted', label: 'Muted' },
+      { value: 'card', label: 'Card' },
+      { value: 'contrast', label: 'Dark' },
+      { value: 'accent', label: 'Accent' },
+      { value: 'custom', label: 'Custom' },
+    ],
+  },
+  { key: 'header.bgType', label: 'Custom background', type: 'segmented', options: [{ value: 'color', label: 'Colour' }, { value: 'gradient', label: 'Gradient' }, { value: 'image', label: 'Image' }], when: (d) => d.header.tone === 'custom' },
+  { key: 'header.bgColor', label: 'Colour', type: 'color', when: (d) => d.header.tone === 'custom' && d.header.bgType !== 'image' },
+  { key: 'header.bgColor2', label: 'Second colour', type: 'color', when: (d) => d.header.tone === 'custom' && d.header.bgType === 'gradient' },
+  { key: 'header.bgAngle', label: 'Gradient angle', type: 'range', min: 0, max: 360, step: 5, when: (d) => d.header.tone === 'custom' && d.header.bgType === 'gradient' },
+  { key: 'header.bgImage', label: 'Image', type: 'image', when: (d) => d.header.tone === 'custom' && d.header.bgType === 'image' },
+  { key: 'header.overlay', label: 'Darken the image', type: 'range', min: 0, max: 0.9, step: 0.05, when: (d) => d.header.tone === 'custom' && d.header.bgType === 'image', help: 'Makes light text readable on busy photos.' },
+  { key: 'header.textColor', label: 'Text colour (empty = theme)', type: 'color', when: (d) => d.header.tone === 'custom' },
+  { key: 'header.size', label: 'Band height', type: 'segmented', options: [{ value: 'compact', label: 'Compact' }, { value: 'normal', label: 'Normal' }, { value: 'tall', label: 'Tall' }] },
+  { group: 'Background of the whole tab' },
+  {
+    key: 'background.type',
+    label: 'Tab background',
+    type: 'segmented',
+    options: [
+      { value: 'none', label: 'Theme' },
+      { value: 'color', label: 'Colour' },
+      { value: 'gradient', label: 'Gradient' },
+      { value: 'image', label: 'Image' },
+    ],
+    help: 'Shows behind every section that uses the “inherit” background.',
+  },
+  { key: 'background.color', label: 'Colour', type: 'color', when: (d) => ['color', 'gradient'].includes(d.background.type) },
+  { key: 'background.color2', label: 'Second colour', type: 'color', when: (d) => d.background.type === 'gradient' },
+  { key: 'background.angle', label: 'Gradient angle', type: 'range', min: 0, max: 360, step: 5, when: (d) => d.background.type === 'gradient' },
+  { key: 'background.image', label: 'Image', type: 'image', when: (d) => d.background.type === 'image' },
+  { key: 'background.overlay', label: 'Fade the image', type: 'range', min: 0, max: 0.95, step: 0.05, when: (d) => d.background.type === 'image', help: 'Covers the photo with the page colour so text stays readable.' },
+  { key: 'background.fixed', label: 'Keep the image still while scrolling', type: 'toggle', when: (d) => d.background.type === 'image' },
+  { key: 'background.textColor', label: 'Text colour (empty = theme)', type: 'color', when: (d) => d.background.type !== 'none' },
+];
 
 export function normalizePage(page) {
   if (!page) return null;
@@ -660,6 +724,7 @@ export function normalizePage(page) {
     navLabel: page.navLabel || page.title || page.id,
     inNav: page.inNav !== false,
     header: { ...DEFAULT_PAGE_HEADER, title: page.title, ...(page.header || {}) },
+    background: { ...DEFAULT_PAGE_BACKGROUND, ...(page.background || {}) },
     sections: Array.isArray(page.sections) ? page.sections : [],
   };
 }

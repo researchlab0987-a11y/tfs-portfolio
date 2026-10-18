@@ -73,6 +73,83 @@ function Illustration({ style }) {
         </>
       )}
       {style === 'none' && <Arrow x={40} y={14} s={1.05} system />}
+      {style === 'dot' && (
+        <>
+          <circle cx="40" cy="30" r="11" fill="color-mix(in srgb, var(--accent) 14%, transparent)" stroke="var(--accent)" strokeOpacity=".55" strokeWidth="1.5" />
+          <circle cx="54" cy="24" r="4" fill="var(--accent)" />
+        </>
+      )}
+      {style === 'invert' && (
+        <>
+          <rect x="16" y="14" width="64" height="12" rx="3" fill="#0f172a" />
+          <rect x="16" y="30" width="44" height="8" rx="3" fill="#94a3b8" />
+          <circle cx="44" cy="26" r="14" fill="#fff" style={{ mixBlendMode: 'difference' }} />
+        </>
+      )}
+      {style === 'crosshair' && (
+        <g stroke="var(--accent)" strokeWidth="2" strokeLinecap="round">
+          <path d="M30 28h10M56 28h10M48 10v10M48 36v10" />
+          <circle cx="48" cy="28" r="2" fill="var(--accent)" stroke="none" />
+        </g>
+      )}
+      {style === 'ripple' && (
+        <>
+          <circle cx="48" cy="28" r="20" fill="none" stroke="var(--accent)" strokeOpacity=".25" strokeWidth="1.5" />
+          <circle cx="48" cy="28" r="12" fill="none" stroke="var(--accent)" strokeOpacity=".6" strokeWidth="2" />
+          <Arrow x={46} y={24} s={0.75} system />
+        </>
+      )}
+      {style === 'trail' && (
+        <>
+          {[[14, 44, 1.5], [24, 40, 2], [33, 35, 2.6], [42, 29, 3.2]].map(([cx, cy, r]) => (
+            <circle key={cx} cx={cx} cy={cy} r={r} fill="var(--accent)" opacity={r / 3.6} />
+          ))}
+          <Arrow x={48} y={16} />
+        </>
+      )}
+      {style === 'rainbow' && (
+        <>
+          <defs>
+            <linearGradient id="cp-rainbow" x1="0" x2="1">
+              <stop offset="0" stopColor="#ef4444" stopOpacity=".2" />
+              <stop offset=".33" stopColor="#f59e0b" />
+              <stop offset=".66" stopColor="#22c55e" />
+              <stop offset="1" stopColor="#6366f1" />
+            </linearGradient>
+          </defs>
+          <path d="M8 44 Q 30 40 52 22" stroke="url(#cp-rainbow)" strokeWidth="7" strokeLinecap="round" fill="none" />
+          <Arrow x={50} y={18} />
+        </>
+      )}
+      {style === 'pixel' && (
+        <>
+          {[[14, 40, 0.3], [21, 36, 0.45], [28, 33, 0.6], [35, 29, 0.75], [42, 26, 0.9]].map(([x, y, o]) => (
+            <rect key={x} x={x} y={y} width="6" height="6" fill="var(--accent)" opacity={o} />
+          ))}
+          <Arrow x={48} y={14} />
+        </>
+      )}
+      {style === 'bubbles' && (
+        <>
+          {[[30, 20, 6], [42, 12, 4], [24, 34, 4.5], [52, 22, 3]].map(([cx, cy, r]) => (
+            <circle key={cx} cx={cx} cy={cy} r={r} fill="color-mix(in srgb, var(--accent) 10%, transparent)" stroke="var(--accent)" strokeOpacity=".6" />
+          ))}
+          <Arrow x={46} y={30} s={0.8} system />
+        </>
+      )}
+      {style === 'laser' && (
+        <>
+          <path d="M16 40 L46 26" stroke="#ff2d3c" strokeOpacity=".45" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="48" cy="25" r="12" fill="url(#cp-laser)" />
+          <defs>
+            <radialGradient id="cp-laser">
+              <stop offset="0" stopColor="#ff2d3c" stopOpacity=".7" />
+              <stop offset="1" stopColor="#ff2d3c" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="48" cy="25" r="3.5" fill="#fff5f6" />
+        </>
+      )}
     </svg>
   );
 }
