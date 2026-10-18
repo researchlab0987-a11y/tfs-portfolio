@@ -171,6 +171,15 @@ export const KINDS = {
         numbered: true,
         showImages: true,
         imageAspect: '4/3',
+        imagePosition: 'auto', // auto | top | left | right | alternate | alternate-right | none
+        imageSize: 'md', // sm | md | lg (side images)
+        imageShape: 'rounded', // rounded | square | circle
+        imageFit: 'cover', // cover | contain
+        verticalAlign: 'start', // start | center
+        textAlign: 'left', // left | center
+        titleSize: 'md', // sm | md | lg
+        hover: 'none', // none | lift | zoom
+        stackMobile: true,
         showBody: true,
         bodyLines: 2,
         showTags: true,
@@ -199,8 +208,46 @@ export const KINDS = {
       { key: 'props.mode', label: 'Layout', type: 'mode' },
       { key: 'props.columns', label: 'Columns', type: 'segmented', options: [1, 2, 3, 4], when: (s) => ['cards', 'masonry', 'list'].includes(s.props.mode) },
       { key: 'props.cardStyle', label: 'Card style', type: 'segmented', options: ['outline', 'filled', 'shadow', 'plain'], when: (s) => ['cards', 'list'].includes(s.props.mode) },
-      { key: 'props.imageAspect', label: 'Image shape', type: 'segmented', options: ['16/9', '4/3', '1/1', '3/4'], when: (s) => ['cards', 'list'].includes(s.props.mode) },
       { key: 'props.density', label: 'Spacing', type: 'segmented', options: ['compact', 'comfortable', 'airy'] },
+      { group: 'Card design' },
+      {
+        key: 'props.imagePosition',
+        label: 'Image position',
+        type: 'segmented',
+        options: [
+          { value: 'auto', label: 'Default' },
+          { value: 'top', label: 'Top' },
+          { value: 'left', label: 'Left' },
+          { value: 'right', label: 'Right' },
+          { value: 'alternate', label: 'Alternate (left first)' },
+          { value: 'alternate-right', label: 'Alternate (right first)' },
+          { value: 'none', label: 'No image' },
+        ],
+        when: (s) => ['cards', 'list'].includes(s.props.mode),
+        help: 'Alternate puts the image on opposite sides in every other entry (zig-zag). Works best with 1 column. Default = top for cards, left for lists.',
+      },
+      {
+        key: 'props.imageSize',
+        label: 'Image width',
+        type: 'segmented',
+        options: [{ value: 'sm', label: 'Small' }, { value: 'md', label: 'Medium' }, { value: 'lg', label: 'Large (half)' }],
+        when: (s) => ['cards', 'list'].includes(s.props.mode) && !['top', 'none'].includes(s.props.imagePosition) && !(s.props.mode === 'cards' && (!s.props.imagePosition || s.props.imagePosition === 'auto')),
+      },
+      {
+        key: 'props.imageAspect',
+        label: 'Image proportion',
+        type: 'segmented',
+        options: [{ value: '16/9', label: '16:9' }, { value: '3/2', label: '3:2' }, { value: '4/3', label: '4:3' }, { value: '1/1', label: 'Square' }, { value: '3/4', label: '3:4' }, { value: '21/9', label: 'Wide' }, { value: 'auto', label: 'Original' }],
+        when: (s) => ['cards', 'list'].includes(s.props.mode) && s.props.imagePosition !== 'none',
+        help: 'Side images fill the card height on larger screens; this proportion is used on phones and for top images.',
+      },
+      { key: 'props.imageShape', label: 'Image corners', type: 'segmented', options: [{ value: 'rounded', label: 'Rounded' }, { value: 'square', label: 'Square' }, { value: 'circle', label: 'Circle' }], when: (s) => ['cards', 'list'].includes(s.props.mode) && s.props.imagePosition !== 'none' },
+      { key: 'props.imageFit', label: 'Image fit', type: 'segmented', options: [{ value: 'cover', label: 'Fill (crop)' }, { value: 'contain', label: 'Whole image (logos)' }], when: (s) => ['cards', 'list'].includes(s.props.mode) && s.props.imagePosition !== 'none' },
+      { key: 'props.verticalAlign', label: 'Text next to the image', type: 'segmented', options: [{ value: 'start', label: 'Top' }, { value: 'center', label: 'Middle' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
+      { key: 'props.textAlign', label: 'Text alignment', type: 'segmented', options: [{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
+      { key: 'props.titleSize', label: 'Title size', type: 'segmented', options: [{ value: 'sm', label: 'Small' }, { value: 'md', label: 'Medium' }, { value: 'lg', label: 'Large' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
+      { key: 'props.hover', label: 'Hover effect', type: 'segmented', options: [{ value: 'none', label: 'None' }, { value: 'lift', label: 'Lift' }, { value: 'zoom', label: 'Zoom image' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
+      { key: 'props.stackMobile', label: 'On phones, show side images above the text (off = hide them)', type: 'toggle', when: (s) => ['cards', 'list'].includes(s.props.mode) && !['top', 'none', 'auto', undefined, ''].includes(s.props.imagePosition) },
       { key: 'props.numbered', label: 'Number the entries', type: 'toggle', when: (s) => s.props.mode === 'citation' },
       { group: 'Fields' },
       { key: 'props.showImages', label: 'Show images', type: 'toggle' },

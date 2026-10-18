@@ -38,6 +38,58 @@ const CARD = {
   plain: '',
 };
 
+
+/* Card design (List and Cards layouts) -------------------------------- */
+// Width of a side image inside a card, and of a list thumbnail.
+const SIDE_W = { sm: 'sm:w-[28%]', md: 'sm:w-[38%]', lg: 'sm:w-1/2' };
+const THUMB_W = { sm: 'sm:w-28', md: 'sm:w-44', lg: 'sm:w-64' };
+const SHAPE = { rounded: 'rounded-[calc(var(--radius)*0.6)]', square: 'rounded-none', circle: 'rounded-full' };
+const TITLE = {
+  sm: 'text-[1.05rem]',
+  md: 'text-[1.22rem]',
+  lg: 'text-[1.45rem] md:text-[1.6rem]',
+};
+const HOVER = {
+  none: '',
+  lift: 'transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_rgba(0,0,0,.35)]',
+  zoom: '',
+};
+
+/** Which side the image goes on for entry i (null = on top / not beside). */
+function sideFor(position, i, fallback) {
+  const pos = !position || position === 'auto' ? fallback : position;
+  if (pos === 'left' || pos === 'right') return pos;
+  if (pos === 'alternate') return i % 2 ? 'right' : 'left';
+  if (pos === 'alternate-right') return i % 2 ? 'left' : 'right';
+  return null;
+}
+
+const aspectStyle = (a) => (a && a !== 'auto' ? { aspectRatio: a } : undefined);
+
+/** The image of an entry, shaped and fitted per the section's settings. */
+function CardImage({ p, src, alt, title, width, className = '', side = false }) {
+  const shape = p.imageShape || 'rounded';
+  const circle = shape === 'circle';
+  const contain = p.imageFit === 'contain';
+  return (
+    <div className={cx('overflow-hidden', side && !circle && 'relative sm:min-h-[220px]', contain && 'bg-bg2', circle && 'p-4', className)}>
+      <SafeImage
+        src={src}
+        alt={alt}
+        fallbackText={title}
+        width={width}
+        className={cx(
+          'block w-full',
+          contain ? 'object-contain p-3' : 'object-cover',
+          circle ? 'mx-auto aspect-square max-w-[220px] rounded-full' : side ? 'sm:absolute sm:inset-0 sm:h-full sm:[aspect-ratio:auto]' : '',
+          p.hover === 'zoom' && 'transition-transform duration-500 group-hover/card:scale-105'
+        )}
+        style={circle ? undefined : aspectStyle(p.imageAspect)}
+      />
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Shared bits                                                         */
 /* ------------------------------------------------------------------ */
@@ -218,30 +270,51 @@ function CitationMode({ items, def, p, onOpen, editMode, highlight }) {
 
 function ListMode({ items, def, p, onOpen, editMode }) {
   const twoCol = Number(p.columns) >= 2;
+  const center = p.textAlign === 'center';
+  let turn = -1;
   return (
     <ul className={cx('grid', twoCol ? 'gap-x-10 md:grid-cols-2' : 'grid-cols-1', p.cardStyle === 'plain' || !p.cardStyle ? 'divide-y divide-line' : GAP[p.density])}>
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
         const boxed = p.cardStyle && p.cardStyle !== 'plain';
+        const hasImg = p.showImages && r.image && p.imagePosition !== 'none';
+        if (hasImg) turn += 1; // alternate only between entries that have an image
+        const side = hasImg ? sideFor(p.imagePosition, turn, 'left') : null;
         return (
           <li
             key={item.id}
             className={cx(
-              'relative flex gap-5',
+              'group/card relative flex gap-5',
+              side ? cx('flex-col', side === 'left' ? 'sm:flex-row' : 'sm:flex-row-reverse') : 'flex-col',
+              p.verticalAlign === 'center' && 'sm:items-center',
               boxed ? cx(CARD[p.cardStyle], 'rounded-card p-5') : DENSITY[p.density],
+              HOVER[p.hover],
               item.hidden && 'opacity-50'
             )}
           >
-            {p.showImages && r.image && (
-              <SafeImage src={r.image} alt="" width={400} className="hidden w-28 shrink-0 rounded-[calc(var(--radius)*0.6)] object-cover sm:block" style={{ aspectRatio: p.imageAspect }} />
+            {hasImg && (
+              <CardImage
+                p={p}
+                src={r.image}
+                alt=""
+                title={r.title}
+                width={side ? 500 : 900}
+                side={false}
+                className={cx(
+                  'shrink-0',
+                  side ? cx('w-full', THUMB_W[p.imageSize || 'sm']) : 'w-full',
+                  side && p.stackMobile === false && 'hidden sm:block',
+                  p.imageShape !== 'circle' && SHAPE[p.imageShape || 'rounded']
+                )}
+              />
             )}
-            <div className="min-w-0 flex-1">
+            <div className={cx('min-w-0 flex-1', center && 'text-center')}>
               {(r.date || r.group) && (
                 <p className="mb-1 text-[0.82rem] text-muted">
                   {[r.date, r.group].filter(Boolean).join(', ')}
                 </p>
               )}
-              <h3 className="font-heading text-[1.25rem] font-medium leading-snug text-ink">
+              <h3 className={cx('font-heading font-medium leading-snug text-ink', TITLE[p.titleSize] || 'text-[1.25rem]')}>
                 <OpenTitle onOpen={onOpen} id={item.id}>
                   {r.title}
                 </OpenTitle>{' '}
@@ -262,18 +335,48 @@ function ListMode({ items, def, p, onOpen, editMode }) {
 }
 
 function CardsMode({ items, def, p, onOpen, editMode }) {
+  const center = p.textAlign === 'center';
+  let turn = -1;
   return (
     <ul className={cx('grid', COLS[p.columns] || COLS[3], GAP[p.density])}>
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
+        const hasImg = p.showImages && r.image && p.imagePosition !== 'none';
+        if (hasImg) turn += 1; // alternate only between entries that have an image
+        const side = hasImg ? sideFor(p.imagePosition, turn, null) : null;
         return (
-          <li key={item.id} className={cx('relative flex flex-col overflow-hidden rounded-card transition-colors', CARD[p.cardStyle] || CARD.outline, onOpen && 'hover:border-accent/50', item.hidden && 'opacity-50')}>
-            {p.showImages && r.image && (
-              <SafeImage src={r.image} alt="" fallbackText={r.title} width={800} className="w-full object-cover" style={{ aspectRatio: p.imageAspect }} />
+          <li
+            key={item.id}
+            className={cx(
+              'group/card relative flex flex-col overflow-hidden rounded-card transition-colors',
+              side && (side === 'left' ? 'sm:flex-row' : 'sm:flex-row-reverse'),
+              CARD[p.cardStyle] || CARD.outline,
+              onOpen && 'hover:border-accent/50',
+              HOVER[p.hover],
+              item.hidden && 'opacity-50'
             )}
-            <div className={cx('flex flex-1 flex-col', p.cardStyle === 'plain' ? 'pt-4' : 'p-5 md:p-6')}>
+          >
+            {hasImg && (
+              <CardImage
+                p={p}
+                src={r.image}
+                alt=""
+                title={r.title}
+                width={800}
+                side={Boolean(side)}
+                className={cx('shrink-0', side && cx('w-full', SIDE_W[p.imageSize || 'md']), side && p.stackMobile === false && 'hidden sm:block')}
+              />
+            )}
+            <div
+              className={cx(
+                'flex min-w-0 flex-1 flex-col',
+                p.cardStyle === 'plain' ? (side ? 'py-2 sm:px-5' : 'pt-4') : 'p-5 md:p-6',
+                side && p.verticalAlign === 'center' && 'justify-center',
+                center && 'items-center text-center'
+              )}
+            >
               {(r.date || r.group) && <p className="mb-2 text-[0.82rem] text-muted">{[r.date, r.group].filter(Boolean).join(', ')}</p>}
-              <h3 className="font-heading text-[1.22rem] font-medium leading-snug text-ink">
+              <h3 className={cx('font-heading font-medium leading-snug text-ink', TITLE[p.titleSize] || TITLE.md)}>
                 <OpenTitle onOpen={onOpen} id={item.id}>
                   {r.title}
                 </OpenTitle>
@@ -281,12 +384,12 @@ function CardsMode({ items, def, p, onOpen, editMode }) {
               {r.subtitle && <p className="mt-1.5 text-[0.95rem] text-ink2">{r.subtitle}</p>}
               {r.metas.length > 0 && <p className="mt-1 text-[0.88rem] text-muted">{r.metas.map((m) => m.value).join(', ')}</p>}
               {p.showBody && <Body text={r.body} lines={p.bodyLines} className="mt-3" />}
-              <div className="mt-auto">
+              <div className={cx(side && p.verticalAlign === 'center' ? 'mt-0' : 'mt-auto', center && 'flex flex-col items-center')}>
                 {p.showTags && <Tags tags={r.tags} />}
                 {p.showLinks && <Links links={r.links} className="mt-3" />}
               </div>
             </div>
-            {r.badge && <span className="absolute left-3 top-3 z-10"><Badge>{r.badge}</Badge></span>}
+            {r.badge && <span className={cx('absolute top-3 z-10', side === 'right' ? 'right-3' : 'left-3')}><Badge>{r.badge}</Badge></span>}
             {editMode && <EditControls item={item} collection={item.collection} />}
           </li>
         );
