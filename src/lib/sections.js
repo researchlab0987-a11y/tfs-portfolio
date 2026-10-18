@@ -570,6 +570,8 @@ export function normalizeSection(raw) {
     props: deepMerge(defs.props || {}, raw.props || {}),
     style: { ...DEFAULT_STYLE, ...(defs.style || {}), ...(raw.style || {}) },
     viewAll: { ...DEFAULT_VIEWALL, ...(raw.viewAll || {}) },
+    // Editors-only "needs review" note (cleared from the Section Studio).
+    ...(raw.review ? { review: raw.review } : {}),
   };
   if (kind === 'blocks') section.props.blocks = (section.props.blocks || []).map(normalizeBlock);
   return section;
