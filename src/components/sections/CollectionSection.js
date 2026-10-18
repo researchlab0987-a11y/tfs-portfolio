@@ -334,7 +334,7 @@ function ListMode({ items, def, p, onOpen, editMode }) {
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
         const boxed = p.cardStyle && p.cardStyle !== 'plain';
-        const hasImg = p.showImages && p.imagePosition !== 'none'; // no image → avatar
+        const hasImg = p.showImages && p.imagePosition !== 'none' && (Boolean(r.image) || p.placeholder === 'avatar'); // no image → avatar only if chosen
         if (hasImg) turn += 1; // alternate only between entries that have an image
         const side = hasImg ? sideFor(p.imagePosition, turn, 'left') : null;
         return (
@@ -400,7 +400,7 @@ function CardsMode({ items, def, p, onOpen, editMode }) {
     <ul className={cx('grid', COLS[p.columns] || COLS[3], GAP[p.density])}>
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
-        const hasImg = p.showImages && p.imagePosition !== 'none'; // no image → avatar
+        const hasImg = p.showImages && p.imagePosition !== 'none' && (Boolean(r.image) || p.placeholder === 'avatar'); // no image → avatar only if chosen
         if (hasImg) turn += 1; // alternate only between entries that have an image
         const side = hasImg ? sideFor(p.imagePosition, turn, null) : null;
         return (

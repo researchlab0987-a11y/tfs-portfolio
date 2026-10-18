@@ -180,6 +180,7 @@ export const KINDS = {
         titleSize: 'md', // sm | md | lg
         hover: 'none', // none | lift | zoom
         stackMobile: true,
+        placeholder: 'none', // none | avatar (when an entry has no image)
         showBody: true,
         bodyLines: 2,
         showTags: true,
@@ -247,6 +248,14 @@ export const KINDS = {
       { key: 'props.textAlign', label: 'Text alignment', type: 'segmented', options: [{ value: 'left', label: 'Left' }, { value: 'center', label: 'Centre' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
       { key: 'props.titleSize', label: 'Title size', type: 'segmented', options: [{ value: 'sm', label: 'Small' }, { value: 'md', label: 'Medium' }, { value: 'lg', label: 'Large' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
       { key: 'props.hover', label: 'Hover effect', type: 'segmented', options: [{ value: 'none', label: 'None' }, { value: 'lift', label: 'Lift' }, { value: 'zoom', label: 'Zoom image' }], when: (s) => ['cards', 'list'].includes(s.props.mode) },
+      {
+        key: 'props.placeholder',
+        label: 'When an entry has no image',
+        type: 'segmented',
+        options: [{ value: 'none', label: 'Leave it out' }, { value: 'avatar', label: 'Show an avatar' }],
+        when: (s) => ['cards', 'list'].includes(s.props.mode) && s.props.imagePosition !== 'none' && s.props.showImages,
+        help: 'Avatar = initials for people lists, or the list’s icon for anything else.',
+      },
       { key: 'props.stackMobile', label: 'On phones, show side images above the text (off = hide them)', type: 'toggle', when: (s) => ['cards', 'list'].includes(s.props.mode) && !['top', 'none', 'auto', undefined, ''].includes(s.props.imagePosition) },
       { key: 'props.numbered', label: 'Number the entries', type: 'toggle', when: (s) => s.props.mode === 'citation' },
       { group: 'Fields' },
