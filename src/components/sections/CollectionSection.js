@@ -9,6 +9,7 @@
  * Clicking an item opens it in the side panel instead of a new page; the
  * panel gets the list's ids so it can step to the previous/next item.
  */
+import Icon from '@/components/ui/Icon';
 import Markdown from '@/components/ui/Markdown';
 import SafeImage from '@/components/ui/SafeImage';
 import { useAdmin } from '@/context/AdminContext';
@@ -66,11 +67,66 @@ function sideFor(position, i, fallback) {
 
 const aspectStyle = (a) => (a && a !== 'auto' ? { aspectRatio: a } : undefined);
 
+/** Lists about people get initials; anything else gets the list's icon. */
+const PEOPLE_ICONS = ['Users', 'UsersRound', 'User', 'Handshake'];
+function avatarFor(def) {
+  const imageField = (def?.fields || []).find((f) => f.role === 'image');
+  const person = PEOPLE_ICONS.includes(def?.icon) || /photo|portrait|avatar/i.test(imageField?.label || '');
+  return { person, icon: def?.icon || 'FileText' };
+}
+
+function initials(text) {
+  return String(text || '')
+    .split(',')[0] // drop trailing degrees: “…, Ph.D.”, “…, MD”
+    .replace(/^(dr|prof|professor|mr|mrs|ms|engr)\.?\s+/i, '')
+    .replace(/[.,]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => /^[\p{L}\p{N}]/u.test(w))
+    .filter((w, i, all) => i === 0 || i === all.length - 1)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
+}
+
+/** Stand-in when an entry has no image: initials or an icon on a soft accent tint. */
+function Avatar({ avatar, title, circle, side }) {
+  const text = avatar?.person ? initials(title) : '';
+  return (
+    <div
+      role="img"
+      aria-label={title ? `${title} (no image)` : 'No image'}
+      className={cx(
+        'grid w-full select-none place-items-center text-accent',
+        circle && 'mx-auto aspect-square max-w-[220px] rounded-full',
+        !circle && 'h-full min-h-[96px]',
+        side && !circle && 'sm:absolute sm:inset-0 sm:h-full sm:[aspect-ratio:auto]'
+      )}
+      style={{
+        background:
+          'radial-gradient(120% 90% at 20% 15%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 60%), color-mix(in srgb, var(--accent) 10%, var(--card-bg))',
+      }}
+    >
+      {text ? (
+        <span className="font-heading text-[clamp(1.6rem,5vw,2.6rem)] font-medium tracking-wide opacity-80">{text}</span>
+      ) : (
+        <Icon name={avatar?.icon} size={40} strokeWidth={1.4} className="opacity-60" fallback={<Icon name="FileText" size={40} strokeWidth={1.4} className="opacity-60" />} />
+      )}
+    </div>
+  );
+}
+
 /** The image of an entry, shaped and fitted per the section's settings. */
-function CardImage({ p, src, alt, title, width, className = '', side = false }) {
+function CardImage({ p, src, alt, title, width, className = '', side = false, avatar }) {
   const shape = p.imageShape || 'rounded';
   const circle = shape === 'circle';
   const contain = p.imageFit === 'contain';
+  if (!src) {
+    return (
+      <div className={cx('overflow-hidden', side && !circle && 'relative sm:min-h-[220px]', circle && 'p-4', className)} style={circle || side ? undefined : aspectStyle(p.imageAspect === 'auto' ? '4/3' : p.imageAspect)}>
+        <Avatar avatar={avatar} title={title} circle={circle} side={side} />
+      </div>
+    );
+  }
   return (
     <div className={cx('overflow-hidden', side && !circle && 'relative sm:min-h-[220px]', contain && 'bg-bg2', circle && 'p-4', className)}>
       <SafeImage
@@ -272,12 +328,13 @@ function ListMode({ items, def, p, onOpen, editMode }) {
   const twoCol = Number(p.columns) >= 2;
   const center = p.textAlign === 'center';
   let turn = -1;
+  const avatar = avatarFor(def);
   return (
     <ul className={cx('grid', twoCol ? 'gap-x-10 md:grid-cols-2' : 'grid-cols-1', p.cardStyle === 'plain' || !p.cardStyle ? 'divide-y divide-line' : GAP[p.density])}>
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
         const boxed = p.cardStyle && p.cardStyle !== 'plain';
-        const hasImg = p.showImages && r.image && p.imagePosition !== 'none';
+        const hasImg = p.showImages && p.imagePosition !== 'none'; // no image → avatar
         if (hasImg) turn += 1; // alternate only between entries that have an image
         const side = hasImg ? sideFor(p.imagePosition, turn, 'left') : null;
         return (
@@ -295,6 +352,7 @@ function ListMode({ items, def, p, onOpen, editMode }) {
             {hasImg && (
               <CardImage
                 p={p}
+                avatar={avatar}
                 src={r.image}
                 alt=""
                 title={r.title}
@@ -337,11 +395,12 @@ function ListMode({ items, def, p, onOpen, editMode }) {
 function CardsMode({ items, def, p, onOpen, editMode }) {
   const center = p.textAlign === 'center';
   let turn = -1;
+  const avatar = avatarFor(def);
   return (
     <ul className={cx('grid', COLS[p.columns] || COLS[3], GAP[p.density])}>
       {items.map((item) => {
         const r = readItem(item, def, p.hiddenFields);
-        const hasImg = p.showImages && r.image && p.imagePosition !== 'none';
+        const hasImg = p.showImages && p.imagePosition !== 'none'; // no image → avatar
         if (hasImg) turn += 1; // alternate only between entries that have an image
         const side = hasImg ? sideFor(p.imagePosition, turn, null) : null;
         return (
@@ -359,6 +418,7 @@ function CardsMode({ items, def, p, onOpen, editMode }) {
             {hasImg && (
               <CardImage
                 p={p}
+                avatar={avatar}
                 src={r.image}
                 alt=""
                 title={r.title}
