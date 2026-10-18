@@ -21,7 +21,7 @@ import { pageHref } from '@/components/ui/ActionButton';
 import Icon from '@/components/ui/Icon';
 import BottomSheet from '@/components/ui/BottomSheet';
 import { navIconFor, normalizeSection } from '@/lib/sections';
-import { MARK_SHAPE, navBarClass, navHeight, navIconClass, navLinkClass } from '@/lib/navStyle';
+import { MARK_SHAPE, navBarProps, navHeight, navIconClass, navLinkClass } from '@/lib/navStyle';
 
 function isActive(pathname, slug) {
   const href = pageHref(slug);
@@ -92,6 +92,7 @@ export default function Navbar() {
   const linkClass = (active) => navLinkClass(nav, active);
   const showIcons = nav.showIcons !== false;
   const barH = navHeight(nav);
+  const bar = navBarProps(nav, scrolled);
 
   // The bar height is shared with sticky offsets and anchor scrolling.
   useEffect(() => {
@@ -125,9 +126,9 @@ export default function Navbar() {
         className={cx(
           'z-40 w-full transition-[background-color,border-color,box-shadow] duration-300',
           config.nav?.sticky !== false && 'sticky top-0',
-          navBarClass(nav, scrolled)
+          bar.className
         )}
-        style={{ height: 'var(--nav-h)' }}
+        style={{ height: 'var(--nav-h)', ...bar.style }}
       >
         <nav className="mx-auto flex h-full max-w-site items-center justify-between gap-3 px-3 sm:px-5 md:px-8 lg:gap-6" aria-label="Main">
           {/* Phones: menu button, then the current tab's name (opens its sections). */}

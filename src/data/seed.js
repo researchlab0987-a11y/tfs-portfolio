@@ -66,7 +66,12 @@ const config = {
     maxVisible: 7,
     sticky: true,
     align: 'right',
-    style: 'blur', // background: blur | solid | transparent
+    theme: 'page', // page | soft | card | contrast | accent | custom
+    bgColor: '',
+    textColor: '',
+    opacity: 90, // %
+    blur: 12, // px
+    topTransparent: false,
     tabStyle: 'pills', // pills | underline | minimal | boxed
     showIcons: true,
     textSize: 'md', // sm | md | lg

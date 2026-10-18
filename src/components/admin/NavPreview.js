@@ -5,7 +5,7 @@
  * The theme variables are already previewed on <html>, so colours match.
  */
 import Icon from '@/components/ui/Icon';
-import { MARK_SHAPE, navBarClass, navHeight, navIconClass, navLinkClass } from '@/lib/navStyle';
+import { MARK_SHAPE, navBarProps, navHeight, navIconClass, navLinkClass } from '@/lib/navStyle';
 import { navIconFor } from '@/lib/sections';
 import { usePages } from '@/lib/store';
 import { cx } from '@/lib/utils';
@@ -33,8 +33,14 @@ export default function NavPreview({ cfg }) {
         </div>
       </div>
       {/* Page-coloured stage so transparent and frosted styles are visible. */}
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-bg2" style={{ backgroundImage: 'repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--text-primary) 4%, transparent) 14px 15px)' }}>
-        <div className={cx('flex items-center justify-between gap-4 px-4 font-body', navBarClass(nav, scrolled))} style={{ height: navHeight(nav) }}>
+      <div
+        className="relative overflow-hidden rounded-xl border border-slate-200 bg-bg"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 18% 30%, color-mix(in srgb, var(--accent) 55%, transparent) 0 26px, transparent 27px), radial-gradient(circle at 62% 20%, color-mix(in srgb, var(--highlight) 60%, transparent) 0 18px, transparent 19px), repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--text-primary) 6%, transparent) 14px 15px)',
+        }}
+      >
+        <div className={cx('relative z-10 flex items-center justify-between gap-4 px-4 font-body', navBarProps(nav, scrolled).className)} style={{ height: navHeight(nav), ...navBarProps(nav, scrolled).style }}>
           <span className="flex min-w-0 items-center gap-2">
             {brand.showMark !== false && brand.mark && (
               <span className={cx('grid h-8 w-8 shrink-0 place-items-center border border-line bg-card font-heading text-[0.72rem] font-semibold text-accent', MARK_SHAPE[nav.markShape] || MARK_SHAPE.circle)}>
