@@ -16,7 +16,7 @@ import { useDrawer } from '@/context/DrawerContext';
 import { readItem } from '@/lib/roles';
 import { saveItem, sortItems, useCollectionDef, useCollectionItems, useConfig } from '@/lib/store';
 import { compareValues, cx } from '@/lib/utils';
-import { Eye, EyeOff, Pencil, Plus, Search, X } from 'lucide-react';
+import { Eye, EyeOff, Pencil, Plus, Search, TriangleAlert, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -139,6 +139,17 @@ function EditControls({ item, collection }) {
   };
   return (
     <span className="ui absolute right-2 top-2 z-20 flex gap-1 rounded-lg border border-slate-200 bg-white p-0.5 shadow">
+      {item.review && (
+        <button
+          type="button"
+          className="inline-flex h-7 items-center gap-1 rounded-md bg-amber-100 px-1.5 text-[11px] font-semibold text-amber-900"
+          onClick={() => openItemEditor(collection, item)}
+          data-tip={`Needs review|${item.review}`}
+          aria-label={`Needs review: ${item.review}`}
+        >
+          <TriangleAlert size={12} /> Review
+        </button>
+      )}
       <button type="button" className="ui-icon-btn !h-7 !w-7" onClick={() => openItemEditor(collection, item)} aria-label="Edit item" title="Edit">
         <Pencil size={13} />
       </button>

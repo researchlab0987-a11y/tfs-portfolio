@@ -4,7 +4,7 @@ import Modal from '@/components/ui/Modal';
 import { useAdmin } from '@/context/AdminContext';
 import { deleteItem, restoreItems, saveItem, useCollectionDef, useItemsMap } from '@/lib/store';
 import { toTags } from '@/lib/utils';
-import { Loader2, Plus, Trash2, X } from 'lucide-react';
+import { CheckCircle2, Eye, Loader2, Plus, Trash2, TriangleAlert, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { ImageInput, Label, MultiImageDrop, Toggle } from './Fields';
@@ -97,6 +97,7 @@ export default function ItemEditor() {
     setSaving(true);
     try {
       const clean = { ...data };
+      if (!String(clean.review || '').trim()) delete clean.review;
       def.fields.filter((f) => f.type === 'tags').forEach((f) => (clean[f.key] = toTags(clean[f.key])));
       const r = await saveItem(clean);
       toast.success(isNew ? `${def.singular} added` : 'Saved');
@@ -149,6 +150,26 @@ export default function ItemEditor() {
         </>
       }
     >
+      {data.review && (
+        <div className="mb-4 flex flex-wrap items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-950">
+          <TriangleAlert size={17} className="mt-0.5 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Needs review</p>
+            <p className="text-amber-900/90">{data.review}</p>
+            <p className="mt-1 text-[12px] text-amber-800/80">{data.hidden ? 'Hidden from visitors until it is checked.' : 'Visible to visitors.'}</p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <button type="button" className="ui-btn !py-1" onClick={() => setData((d) => ({ ...d, review: '' }))} data-tip="Mark as checked|Removes the review note. Press Save to keep it.">
+              <CheckCircle2 size={14} /> Mark as checked
+            </button>
+            {data.hidden && (
+              <button type="button" className="ui-btn ui-btn-accent !py-1" onClick={() => setData((d) => ({ ...d, review: '', hidden: false }))} data-tip="Checked and show|Removes the note and makes it visible. Press Save to keep it.">
+                <Eye size={14} /> Checked, show it
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {def.fields.map((f) => (
           <div key={f.key} className={['markdown', 'textarea', 'image', 'gallery'].includes(f.type) || f.role === 'title' ? 'sm:col-span-2' : ''}>
@@ -162,6 +183,10 @@ export default function ItemEditor() {
         </div>
         <div className="self-end">
           <Toggle label="Hidden from visitors" checked={data.hidden} onChange={(v) => setData((d) => ({ ...d, hidden: v }))} />
+        </div>
+        <div className="sm:col-span-2">
+          <Label help="Only editors see this. Use it for things still to confirm; the entry shows a “Review” badge until it is cleared.">Review note</Label>
+          <textarea className="ui-input" rows={2} placeholder="e.g. Confirm the spelling of the name" value={data.review || ''} onChange={(e) => setData((d) => ({ ...d, review: e.target.value }))} />
         </div>
       </div>
     </Modal>

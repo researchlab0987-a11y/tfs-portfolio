@@ -24,6 +24,7 @@ export default function ContentManager({ active: activeProp, onSelect }) {
   const setActive = (k) => (onSelect ? onSelect(k) : setOwnActive(k));
   const [query, setQuery] = useState('');
   const [schemaFor, setSchemaFor] = useState(null);
+  const [reviewOnly, setReviewOnly] = useState(false);
   const current = schema.collections?.[active] ? active : keys[0];
   const def = schema.collections?.[current];
   const ordered = useCollectionItems(current, { includeHidden: true, sort: { field: 'order', dir: 'asc' } });
@@ -34,7 +35,9 @@ export default function ContentManager({ active: activeProp, onSelect }) {
     return c;
   }, [itemsMap]);
 
-  const shown = query ? ordered.filter((i) => JSON.stringify(i).toLowerCase().includes(query.toLowerCase())) : ordered;
+  const reviewCount = ordered.filter((i) => i.review).length;
+  const searched = query ? ordered.filter((i) => JSON.stringify(i).toLowerCase().includes(query.toLowerCase())) : ordered;
+  const shown = reviewOnly ? searched.filter((i) => i.review) : searched;
 
   const run = async (fn, msg) => {
     try {
@@ -81,7 +84,20 @@ export default function ContentManager({ active: activeProp, onSelect }) {
               <Plus size={14} /> Add {def.singular?.toLowerCase()}
             </button>
           </div>
-          <p className="text-[12px] text-slate-500">Arrows set the manual order, used by lists sorted “Manual order”.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="mr-auto text-[12px] text-slate-500">Arrows set the manual order, used by lists sorted “Manual order”.</p>
+            {reviewCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setReviewOnly((v) => !v)}
+                aria-pressed={reviewOnly}
+                className={cx('inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[12px] font-semibold', reviewOnly ? 'border-amber-500 bg-amber-500 text-white' : 'border-amber-300 bg-amber-50 text-amber-900')}
+                data-tip="Needs review|Show only entries with a review note."
+              >
+                {reviewCount} need review
+              </button>
+            )}
+          </div>
           <ul className="ui-card divide-y divide-slate-100">
             {shown.length === 0 && <li className="p-6 text-center text-slate-500">No items yet.</li>}
             {shown.map((item) => {
@@ -100,7 +116,14 @@ export default function ContentManager({ active: activeProp, onSelect }) {
                     </div>
                   )}
                   <button type="button" className="min-w-0 flex-1 text-left" onClick={() => openItemEditor(current, item)}>
-                    <span className="block truncate font-medium">{r.title}</span>
+                    <span className="flex items-center gap-1.5 truncate font-medium">
+                      {r.title}
+                      {item.review && (
+                        <span className="shrink-0 rounded bg-amber-100 px-1.5 py-px text-[10.5px] font-semibold text-amber-900" data-tip={`Needs review|${item.review}`}>
+                          Review
+                        </span>
+                      )}
+                    </span>
                     <span className="block truncate text-[12px] text-slate-500">{[r.date, r.subtitle].filter(Boolean).join(' · ')}</span>
                   </button>
                   <button type="button" className="ui-icon-btn" onClick={() => run(() => saveItem({ ...item, hidden: !item.hidden }))} aria-label={item.hidden ? 'Show to visitors' : 'Hide from visitors'} data-tip={item.hidden ? 'Hidden|Visitors cannot see this entry. Click to show it again.' : 'Visible|Click to hide this entry from visitors without deleting it.'}>

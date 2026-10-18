@@ -332,6 +332,18 @@ export default function SectionEditor() {
         </button>
       </div>
 
+      {draft.review && (
+        <div className="flex items-start gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-[12.5px] text-amber-950">
+          <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+          <p className="min-w-0 flex-1">
+            <b>Needs review:</b> {draft.review}
+          </p>
+          <button type="button" className="ui-btn !py-0.5 !text-[12px]" onClick={() => setDraft({ ...draft, review: '' })}>
+            Mark as checked
+          </button>
+        </div>
+      )}
+
       {/* Search + tabs */}
       <div className="space-y-2.5 border-b border-slate-200 bg-white px-4 pb-3 pt-3">
         <label className="relative block">

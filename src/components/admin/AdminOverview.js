@@ -4,6 +4,7 @@
  * getting-started checklist that ticks itself off from the real content.
  */
 import { useAdmin } from '@/context/AdminContext';
+import { readItem } from '@/lib/roles';
 import { uploadsEnabled } from '@/lib/cloudinary';
 import { exportData, useConfig, useItemsMap, usePages, useSchema, useStatus } from '@/lib/store';
 import { cx, safeLocalStorage } from '@/lib/utils';
@@ -70,6 +71,7 @@ export default function AdminOverview({ onGo, unread = 0 }) {
     return c;
   }, [items]);
   const totalItems = Object.values(counts).reduce((a, b) => a + b, 0);
+  const toReview = Object.values(items).filter((i) => i.review && canList(i.collection));
   const hiddenTabs = pages.filter((p) => p.hidden).length;
   const pubKey = collections.publications ? 'publications' : Object.keys(collections)[0];
 
@@ -158,6 +160,33 @@ export default function AdminOverview({ onGo, unread = 0 }) {
           tip="Where changes go|Open Data and backups for details."
         />
       </section>
+
+      {toReview.length > 0 && (
+        <section className="rounded-xl border border-amber-200 bg-amber-50/70 p-5">
+          <h2 className="text-[14px] font-semibold text-amber-950">{toReview.length} {toReview.length === 1 ? 'entry needs' : 'entries need'} review</h2>
+          <p className="mb-3 text-[12.5px] text-amber-900/80">Imported with a question to confirm. Most are hidden from visitors until checked. Click one to open it.</p>
+          <ul className="divide-y divide-amber-100 overflow-hidden rounded-lg border border-amber-100 bg-white">
+            {toReview.slice(0, 12).map((it) => {
+              const def = collections[it.collection];
+              const title = def ? readItem(it, def).title : it.id;
+              return (
+                <li key={it.id}>
+                  <button type="button" onClick={() => openItemEditor(it.collection, it)} className="flex w-full items-start gap-3 px-3 py-2.5 text-left hover:bg-amber-50/60">
+                    <span className="mt-0.5 shrink-0 rounded bg-amber-100 px-1.5 py-px text-[10.5px] font-semibold text-amber-900">{def?.singular || 'Entry'}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-medium text-slate-900">
+                        {title || 'Untitled'} {it.hidden && <span className="font-normal text-slate-400">· hidden</span>}
+                      </span>
+                      <span className="block truncate text-[12px] text-slate-500">{it.review}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {toReview.length > 12 && <p className="mt-2 text-[12px] text-amber-900/80">…and {toReview.length - 12} more in Content (use the “need review” filter).</p>}
+        </section>
+      )}
 
       <section>
         <h2 className="mb-2.5 text-[14px] font-semibold text-slate-800">Quick actions</h2>

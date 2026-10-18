@@ -39,6 +39,11 @@ export default function SectionToolbar({ section, page, index, total, isDraft })
       }`}
     >
       <span className="px-2 text-[11px] font-semibold text-slate-500">{KINDS[section.kind]?.label}</span>
+      {section.review && (
+        <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900" data-tip={`Needs review|${section.review}`}>
+          Review
+        </span>
+      )}
       <button
         type="button"
         className="ui-btn ui-btn-accent !px-2.5 !py-1 text-xs"
