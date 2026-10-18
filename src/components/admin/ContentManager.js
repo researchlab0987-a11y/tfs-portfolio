@@ -17,13 +17,13 @@ import { confirmDanger, undoToast } from '@/components/ui/ConfirmDialog';
 export default function ContentManager({ active: activeProp, onSelect }) {
   const schema = useSchema();
   const itemsMap = useItemsMap();
+  const { openItemEditor, canList, can } = useAdmin();
   const keys = Object.keys(schema.collections || {}).filter((k) => canList(k));
   const [ownActive, setOwnActive] = useState(keys[0]);
   const active = activeProp || ownActive;
   const setActive = (k) => (onSelect ? onSelect(k) : setOwnActive(k));
   const [query, setQuery] = useState('');
   const [schemaFor, setSchemaFor] = useState(null);
-  const { openItemEditor, canList, can } = useAdmin();
   const current = schema.collections?.[active] ? active : keys[0];
   const def = schema.collections?.[current];
   const ordered = useCollectionItems(current, { includeHidden: true, sort: { field: 'order', dir: 'asc' } });
