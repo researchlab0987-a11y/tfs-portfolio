@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Who is asking -------------------------------------------------
+    // Email must be verified, so nobody can claim an admin's address by
+    // registering it first.
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function me() { return request.auth.token.email.lower(); }
+
+    // Super admin: fixed here and in NEXT_PUBLIC_SUPER_ADMIN_EMAILS.
+    function isSuper() { return signedIn() && me() in ['abdullahalmazid.bd@gmail.com']; }
+
+    // Admins: admins/{lower-case email} = { active, perms: {...} }, written by the super admin.
+    function adminPath() { return /databases/$(database)/documents/admins/$(me()); }
+    function isActiveAdmin() { return signedIn() && exists(adminPath()) && get(adminPath()).data.active == true; }
+    function perms() { return get(adminPath()).data.perms; }
+    function can(p) { return isSuper() || (isActiveAdmin() && perms().get(p, false) == true); }
+    function canList(c) {
+      return isSuper() || (isActiveAdmin()
+        && (perms().get('content', []) == 'all' || c in perms().get('content', [])));
+    }
+
+    // Permanent deletion only within 10 minutes of re-entering the password.
+    function recentlyVerified() {
+      return request.auth.token.auth_time > request.time.toMillis() / 1000 - 600;
+    }
+
+    // ---- Access control (super admin only; an admin may read only their own entry)
+    match /admins/{email} {
+      allow read: if isSuper() || (signedIn() && me() == email);
+      allow write: if isSuper();
+    }
+
+    // ---- Site settings
+    match /site/config {
+      allow read: if true;
+      allow create, update: if can('design');
+      allow delete: if isSuper() && recentlyVerified();
+    }
+    match /site/schema {
+      allow read: if true;
+      allow create, update: if can('lists');
+      allow delete: if isSuper() && recentlyVerified();
+    }
+
+    // ---- Tabs: section editors may only change `sections` and `trash`
+    match /pages/{id} {
+      allow read: if true;
+      allow create, delete: if can('tabs');
+      allow update: if can('tabs')
+        || (can('sections') && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sections', 'trash']));
+    }
+
+    // ---- List entries: per list. "Delete" moves to the Bin (an update);
+    // removing for good needs the purge permission and a fresh password.
+    match /items/{id} {
+      allow read: if true;
+      allow create: if canList(request.resource.data.collection);
+      allow update: if canList(resource.data.collection) && canList(request.resource.data.collection);
+      allow delete: if canList(resource.data.collection) && can('purge') && recentlyVerified();
+    }
+
+    // ---- Contact form: visitors may create a bounded message.
+    match /messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name','email','subject','message','createdAt','read'])
+        && request.resource.data.name is string && request.resource.data.name.size() < 200
+        && request.resource.data.email is string && request.resource.data.email.size() < 200
+        && request.resource.data.message is string && request.resource.data.message.size() < 5000;
+      allow read, update: if can('messages');
+      allow delete: if can('messages') && can('purge') && recentlyVerified();
+    }
+  }
+}
