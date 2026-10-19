@@ -14,12 +14,12 @@ It works immediately without Firebase. The site shows the bundled content (from 
 ## Connect Firebase
 
 1. Create a Firebase project. Enable **Authentication → Email/Password** and add the super admin's user. Create a **Firestore** database.
-2. Copy `.env.example` to `.env.local` and fill in the Firebase web-app keys. `NEXT_PUBLIC_SUPER_ADMIN_EMAILS` is the super admin (full control). `.env.local` is git-ignored: never commit it.
+2. Copy `.env.example` to `.env.local` and fill in the Firebase web-app keys. `SUPER_ADMIN_EMAILS` is the super admin (full control). `.env.local` is git-ignored: never commit it.
 3. Put the same super admin email in `isSuper()` in `firestore.rules` and publish the rules: `firebase deploy --only firestore:rules` (run inside this folder).
 4. Run the site, sign in at `/login` (the first time you are asked to verify your email), then **Dashboard → Data and backups → Publish** once to upload the starting content.
 5. **Dashboard → Access** (super admin only): add admins, choose what each may edit (sections, tabs, which lists, design, messages, permanent delete, backups) and email them a link to set their password. The database rules enforce the same permissions.
 
-Optional: for image hosting, create an **unsigned upload preset** in Cloudinary and add `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` and `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`. Without it, images are compressed and stored inside the site data.
+Optional: for image hosting, create an **unsigned upload preset** in Cloudinary and add `CLOUDINARY_CLOUD_NAME` and `CLOUDINARY_UPLOAD_PRESET`. Without it, images are compressed and stored inside the site data.
 
 Deploy to Vercel as usual, add the same environment variables there, and add the domain under Firebase Authentication → Settings → Authorized domains.
 

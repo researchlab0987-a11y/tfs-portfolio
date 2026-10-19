@@ -46,7 +46,7 @@ const WRITE_TIMEOUT = 10000;
 const CONNECT_TIMEOUT = 8000;
 
 export const FIREBASE_CONFIGURED = Boolean(
-  process.env.NEXT_PUBLIC_FIREBASE_API_KEY && process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  process.env.FIREBASE_API_KEY && process.env.FIREBASE_PROJECT_ID
 );
 
 const byId = (list) => Object.fromEntries((list || []).map((d) => [d.id, d]));

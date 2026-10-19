@@ -254,7 +254,7 @@ service cloud.firestore {
     }
     function me() { return request.auth.token.email.lower(); }
 
-    // Super admin: fixed here and in NEXT_PUBLIC_SUPER_ADMIN_EMAILS.
+    // Super admin: fixed here and in SUPER_ADMIN_EMAILS.
     function isSuper() { return signedIn() && me() in ['owner@example.com']; }
 
     // Admins: admins/{lower-case email} = { active, perms: {...} }, written by the super admin.
@@ -489,17 +489,17 @@ No email notification is sent by default. To add one: the Firebase "Trigger Emai
 ### 5.1 Variables (`.env.local`, and the same in the host's settings)
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-NEXT_PUBLIC_SUPER_ADMIN_EMAILS=owner@example.com      # super admin(s); must match isSuper() in firestore.rules
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=                    # optional
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=                 # optional, unsigned preset
+FIREBASE_API_KEY=
+FIREBASE_AUTH_DOMAIN=
+FIREBASE_PROJECT_ID=
+FIREBASE_STORAGE_BUCKET=
+FIREBASE_APP_ID=
+SUPER_ADMIN_EMAILS=owner@example.com      # super admin(s); must match isSuper() in firestore.rules
+CLOUDINARY_CLOUD_NAME=                    # optional
+CLOUDINARY_UPLOAD_PRESET=                 # optional, unsigned preset
 ```
 
-All are `NEXT_PUBLIC_` because everything runs in the browser. Leave the Firebase ones empty to run in local mode. Changing env vars requires a rebuild/redeploy (they are inlined at build time).
+They use plain names and are passed to the app by `next.config.mjs` (`env`), because the browser talks to Firebase and Cloudinary directly; none is a secret (the rules protect the data). The older `NEXT_PUBLIC_…` names still work as a fallback. Leave the Firebase ones empty to run in local mode. Changing env vars requires a rebuild/redeploy (they are inlined at build time).
 
 ### 5.2 One-time setup
 

@@ -1,7 +1,7 @@
 /**
  * Who may do what.
  *
- * Super admin: the emails in NEXT_PUBLIC_SUPER_ADMIN_EMAILS (and in
+ * Super admin: the emails in SUPER_ADMIN_EMAILS (and in
  * firestore.rules). Can do everything, including managing admins.
  *
  * Admins: one Firestore document per admin, `admins/{lower-case email}`:
@@ -12,7 +12,7 @@
  * security.
  */
 
-export const SUPER_ADMINS = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || 'abdullahalmazid.bd@gmail.com')
+export const SUPER_ADMINS = (process.env.SUPER_ADMIN_EMAILS || 'abdullahalmazid.bd@gmail.com')
   .split(',')
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);

@@ -418,7 +418,7 @@ Display through `SafeImage`: lazy, async decode, `referrerPolicy="no-referrer"`,
 - Auth: Firebase email/password, optional allow-list `NEXT_PUBLIC_ADMIN_EMAILS`; local mode offers a "local editor" session.
 - Tabs pre-rendered with `generateStaticParams` from the seed (`dynamicParams = true` for tabs added later) so links prefetch and tab switches are instant.
 
-Env vars: `NEXT_PUBLIC_FIREBASE_API_KEY, _AUTH_DOMAIN, _PROJECT_ID, _STORAGE_BUCKET, _APP_ID, NEXT_PUBLIC_ADMIN_EMAILS, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`.
+Env vars: `FIREBASE_API_KEY, _AUTH_DOMAIN, _PROJECT_ID, _STORAGE_BUCKET, _APP_ID, NEXT_PUBLIC_ADMIN_EMAILS, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET`.
 
 Config shape (seed defaults):
 

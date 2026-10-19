@@ -2,8 +2,8 @@
  * Cloudinary unsigned uploads, straight to the REST endpoint (no widget
  * script). Without configuration the editor falls back to pasting a URL.
  */
-const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET;
 
 export const uploadsEnabled = Boolean(cloudName && uploadPreset);
 
